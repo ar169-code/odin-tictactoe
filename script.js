@@ -10,7 +10,9 @@ function createBoard() {
             board[pos1][pos2] = symbol
         };
 
-        console.log(board);
+        console.log(board[0]);
+        console.log(board[1]);
+        console.log(board[2]);
     }
 
     function restartBoard() {
@@ -94,10 +96,12 @@ const tictactoeGame = (() => {
         let turn = 0;
         let win = false;
         while (win === false) {
-            const pos1 = +prompt("Enter pos1: ");
-            const pos2 = +prompt("Enter pos2: ");
+            const currentPlayer = turn % 2 === 0 ? player1 : player2;
+            const pos1 = +prompt(`${currentPlayer.name} enter pos1: `);
+            const pos2 = +prompt(`${currentPlayer.name} enter pos2: `);
 
-            win = playTurn([pos1, pos2], player1)
+            win = playTurn([pos1, pos2], currentPlayer);
+            turn ++;
         }
     }
 
@@ -108,6 +112,28 @@ const tictactoeGame = (() => {
     return {getGameBoard, getPlayer1, getPlayer2, startGame, playRound};
 })();
 
-tictactoeGame.startGame("p1", "p2");
-tictactoeGame.playRound(tictactoeGame.getPlayer1(), tictactoeGame.getPlayer2())
+const playersForm = document.querySelector("#players-form")
+const scoreBoard = document.querySelector(".scoreboard")
+
+playersForm.addEventListener("submit", (e) => {
+    e.preventDefault()
+    
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    
+    tictactoeGame.startGame(data.player1, data.player2)
+
+    const player1Stats = document.createElement("p");
+    player1Stats.textContent = `${tictactoeGame.getPlayer1().name}: ${tictactoeGame.getPlayer1().points}`
+
+    const player2Stats = document.createElement("p");
+    player2Stats.textContent = `${tictactoeGame.getPlayer2().name}: ${tictactoeGame.getPlayer2().points}`
+
+    scoreBoard.appendChild(player1Stats);
+    scoreBoard.appendChild(player2Stats)
+
+    playersForm.classList.add("hidden")
+})
+
+// tictactoeGame.startGame("p1", "p2");
+// tictactoeGame.playRound(tictactoeGame.getPlayer1(), tictactoeGame.getPlayer2())
 
