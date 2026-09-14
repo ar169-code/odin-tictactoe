@@ -12,15 +12,17 @@
     <form id="players-form">
         <p>
             <label for="player1">Player 1:</label>
-            <input type="text" name="player1" id="player1">
+            <input type="text" name="player1" id="player1" required>
         </p>
         <p>
             <label for="player2">Player 2:</label>
-            <input type="text" name="player2" id="player2">
+            <input type="text" name="player2" id="player2" required>
         </p>
 
         <button type="submit">Submit</button>
     </form>
+
+    <div class="game-board-wrapper"></div>
     
     <script src="script.js"></script>
 </body>

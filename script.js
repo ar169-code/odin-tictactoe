@@ -70,6 +70,8 @@ const tictactoeGame = (() => {
     let tictactoeBoard;
     let player1;
     let player2;
+    let turn = 0;
+    let win = false;
 
     const startGame = (p1Name, p2Name) => {
         tictactoeBoard = createBoard();
@@ -79,41 +81,91 @@ const tictactoeGame = (() => {
         player2 = new Player(p2Name, "o");
     };
 
-    const playTurn = (pos, player) => {
-        tictactoeBoard.updateBoard(pos[0], pos[1], player.marker)
+    const playTurn = (pos) => {
+        const currentPlayer = turn % 2 === 0 ? player1 : player2;
 
-        if (tictactoeBoard.checkWin(pos[0], pos[1], player.marker)) {
+        tictactoeBoard.updateBoard(pos[0], pos[1], currentPlayer.marker)
+
+        if (tictactoeBoard.checkWin(pos[0], pos[1], currentPlayer.marker)) {
             console.log("win")
-            player.win()
-            tictactoeBoard.restartBoard()
+            currentPlayer.win()
+            updateStats()
+            startNewRound()
             return true
         }
 
+        turn++
         return false
     }
 
-    const playRound = (player1, player2) => {
-        let turn = 0;
-        let win = false;
-        while (win === false) {
-            const currentPlayer = turn % 2 === 0 ? player1 : player2;
-            const pos1 = +prompt(`${currentPlayer.name} enter pos1: `);
-            const pos2 = +prompt(`${currentPlayer.name} enter pos2: `);
+    const startNewRound = () => {
+        turn = 0;
+        win = false;
 
-            win = playTurn([pos1, pos2], currentPlayer);
-            turn ++;
-        }
+        tictactoeBoard.restartBoard()
     }
 
     const getPlayer1 = () => player1;
     const getPlayer2 = () => player2;
     const getGameBoard = () => tictactoeBoard; 
 
-    return {getGameBoard, getPlayer1, getPlayer2, startGame, playRound};
+    return {getGameBoard, getPlayer1, getPlayer2, startGame, startNewRound, playTurn};
 })();
 
 const playersForm = document.querySelector("#players-form")
 const scoreBoard = document.querySelector(".scoreboard")
+const gameBoard = document.querySelector(".game-board-wrapper")
+
+const tttBoxes = [[],[],[]];
+
+function updateStats() {
+    scoreBoard.textContent = ""
+    const player1Stats = document.createElement("p");
+    player1Stats.textContent = `${tictactoeGame.getPlayer1().name}: ${tictactoeGame.getPlayer1().points}`
+
+    const player2Stats = document.createElement("p");
+    player2Stats.textContent = `${tictactoeGame.getPlayer2().name}: ${tictactoeGame.getPlayer2().points}`
+
+    scoreBoard.appendChild(player1Stats);
+    scoreBoard.appendChild(player2Stats);
+}
+
+for (let i = 0; i < 9; i++) {
+    const tttBox = document.createElement("div");
+    tttBox.classList.add("ttt-box");
+    tttBox.setAttribute("data-value", i)
+
+    const pos1 = Math.floor(i/3);
+    const pos2 = i % 3
+
+    tttBox.addEventListener("click", (e) => {
+        const data = e.target.dataset.value;
+
+        if (tictactoeGame.getGameBoard()) {
+            tictactoeGame.playTurn([pos1,pos2])
+        }
+
+        updateLiveBoard()
+    })
+
+    tttBoxes[pos1][pos2] = tttBox;
+}
+
+function updateLiveBoard() {
+    gameBoard.textContent = ""
+
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (tictactoeGame.getGameBoard().getBoard()[i][j]) {
+                tttBoxes[i][j].textContent = tictactoeGame.getGameBoard().getBoard()[i][j]
+            } else {
+                tttBoxes[i][j].textContent = ""
+            }
+
+            gameBoard.appendChild(tttBoxes[i][j])
+        }
+    }
+}
 
 playersForm.addEventListener("submit", (e) => {
     e.preventDefault()
@@ -122,18 +174,14 @@ playersForm.addEventListener("submit", (e) => {
     
     tictactoeGame.startGame(data.player1, data.player2)
 
-    const player1Stats = document.createElement("p");
-    player1Stats.textContent = `${tictactoeGame.getPlayer1().name}: ${tictactoeGame.getPlayer1().points}`
-
-    const player2Stats = document.createElement("p");
-    player2Stats.textContent = `${tictactoeGame.getPlayer2().name}: ${tictactoeGame.getPlayer2().points}`
-
-    scoreBoard.appendChild(player1Stats);
-    scoreBoard.appendChild(player2Stats)
+    updateStats()
 
     playersForm.classList.add("hidden")
+
+    tictactoeGame.startNewRound(tictactoeGame.getPlayer1(), tictactoeGame.getPlayer2())
+
+    updateLiveBoard()
 })
 
-// tictactoeGame.startGame("p1", "p2");
-// tictactoeGame.playRound(tictactoeGame.getPlayer1(), tictactoeGame.getPlayer2())
+
 

@@ -1,3 +1,22 @@
 .hidden {
     display: none;
 }
+
+.game-board-wrapper {
+    width:700px;
+    height: 700px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap:3px;
+    background-color: black;
+}
+
+.ttt-box {
+    background-color: white;
+    font-size: 3rem;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
